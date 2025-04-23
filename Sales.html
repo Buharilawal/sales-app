@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Recorder</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f5f5; }
+    h1 { color: #333; }
+    input, select, button { padding: 0.5rem; margin: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #0077b6; color: white; }
+    tfoot td { font-weight: bold; background: #e0e0e0; }
+  </style>
+</head>
+<body>
+
+  <h1>Sales Recorder</h1>
+
+  <div>
+    <select id="product">
+      <option value="">Select Product</option>
+      <option value="Biki Small">Biki Small</option>
+      <option value="Biki Big">Biki Big</option>
+    </select>
+    <input type="number" id="quantity" placeholder="Quantity">
+    <input type="number" id="price" placeholder="Price per Unit">
+    <input type="date" id="saleDate">
+    <button onclick="addSale()">Add Sale</button>
+  </div>
+
+  <table id="salesTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4">Total Revenue</td>
+        <td id="totalRevenue">0</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <script>
+    let sales = JSON.parse(localStorage.getItem('sales')) || [];
+
+    function addSale() {
+      const product = document.getElementById('product').value;
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const price = parseFloat(document.getElementById('price').value);
+      const date = document.getElementById('saleDate').value;
+      if (!product || isNaN(quantity) || isNaN(price) || !date) return alert('Please fill all fields correctly.');
+
+      const sale = { product, quantity, price, date, total: quantity * price };
+      sales.push(sale);
+      localStorage.setItem('sales', JSON.stringify(sales));
+      renderSales();
+      document.getElementById('product').value = '';
+      document.getElementById('quantity').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('saleDate').value = '';
+    }
+
+    function renderSales() {
+      const tbody = document.querySelector('#salesTable tbody');
+      tbody.innerHTML = '';
+      let total = 0;
+      sales.forEach(sale => {
+        const row = `<tr>
+          <td>${sale.date}</td>
+          <td>${sale.product}</td>
+          <td>${sale.quantity}</td>
+          <td>$${sale.price.toFixed(2)}</td>
+          <td>$${sale.total.toFixed(2)}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+        total += sale.total;
+      });
+      document.getElementById('totalRevenue').innerText = `$${total.toFixed(2)}`;
+    }
+
+    renderSales();
+  </script>
+
+</body>
+</html>
